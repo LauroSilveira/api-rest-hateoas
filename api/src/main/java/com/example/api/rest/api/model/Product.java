@@ -2,38 +2,57 @@ package com.example.api.rest.api.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import org.springframework.hateoas.RepresentationModel;
 
 @Entity
-public class Product implements Serializable {
+@Table(name = "Product")
+public class Product extends RepresentationModel<Product> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long productId;
 	private String description;
 	private BigDecimal value;
-	private LocalDate date;
 
-	public Product(Long id, String description, BigDecimal value, LocalDate date) {
-		this.id = id;
-		this.description = description;
-		this.value = value;
-		this.date = date;
+	@ManyToOne
+	@JoinColumn(name = "purchaseId")
+	private Purchase purchase;
+
+	public Product() {
+
 	}
 
-	public Long getId() {
-		return id;
+	public Purchase getPurchase() {
+		return purchase;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setPurchase(Purchase purchase) {
+		this.purchase = purchase;
+	}
+
+	public Product(ProductBuilder builder) {
+		this.productId = builder.productId;
+		this.description = builder.description;
+		this.value = builder.value;
+	}
+
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
 	}
 
 	public String getDescription() {
@@ -52,11 +71,29 @@ public class Product implements Serializable {
 		this.value = value;
 	}
 
-	public LocalDate getDate() {
-		return date;
-	}
+	public static class ProductBuilder {
+		private Long productId;
+		private String description;
+		private BigDecimal value;
 
-	public void setDate(LocalDate date) {
-		this.date = date;
+		public ProductBuilder productId(Long productId) {
+			this.productId = productId;
+			return this;
+		}
+
+		public ProductBuilder description(String description) {
+			this.description = description;
+			return this;
+		}
+
+		public ProductBuilder value(BigDecimal value) {
+			this.value = value;
+			return this;
+		}
+
+		public Product build() {
+			return new Product(this);
+		}
+
 	}
 }
